@@ -32,9 +32,13 @@ class PopArt {
     this.height = h;
   }
 
-  void setImage(PImage img) {
-    imgs[imgIndex] = img;
-    imgIndex = (imgIndex + 1) % imgCount;
+  void setImage(PImage img, boolean isFront) {
+    if (isFront) {
+      imgs[imgIndex] = img;
+      imgIndex = (imgIndex + 1) % imgCount;
+    } else {
+      imgs[(imgIndex + 1) % imgCount] = img;
+    }
   }
 
   void update() {
@@ -71,7 +75,7 @@ class PopArt {
 
   void display() {
 
-    fill(0);
+    fill(255);
     noStroke();
     rect(x, y, width, height);
 

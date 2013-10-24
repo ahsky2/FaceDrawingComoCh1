@@ -1,6 +1,6 @@
 import java.util.*;
 
-int imgCount = 2;
+int imgCount = 12;
 PImage imgs[] = new PImage[imgCount];
 
 NonLinearFunc func;
@@ -18,31 +18,42 @@ int[] showDelayIndexes = new int[popArtCount];
 int[] showDelays = new int[popArtCount];
 boolean[] isRunnings = new boolean[popArtCount];
 
+boolean isSave = false;
+int saveIndex = 0;
+int saveCount = 1000;
+
 void setup() {
   size(720, 480, P2D);
   smooth();
+  background(0);
   
   for(int i = 0; i < imgCount; i++) {
-    imgs[i] = loadImage("img" + (i + 1) + ".jpg");
+//    imgs[i] = loadImage("img" + (i + 1) + ".jpg");
+    imgs[i] = loadImage("PFD_100x100_" + (i + 101 + "").substring(1) + ".jpg");
+    if (imgs[i] == null)  {
+      exit();
+    }
     imgs[i].resize(80, 80);
   }
   
   func = new NonLinearFunc(0.0, 0.0, 255.0, 255.0, 3.0);
-  func.make(10.0); // alpha value
+  func.make(4.0); // alpha value
   
   popArtVector = new Vector();
   for(int y = 0; y < (windowHeight / popArtHeight); y++) {
     for(int x = 0; x < (windowWidth / popArtWidth); x++) {
       if (x + y * (windowWidth / popArtWidth) < popArtCount) {
         PopArt popArt = new PopArt(x * 80, y * 80, 80, 80);
-        popArt.setImage(imgs[0]);
-        popArt.setImage(imgs[1]);
+        int index = round(random(0, imgCount-1));
+//        println(index);
+        popArt.setImage(imgs[index], true);
+        popArt.setImage(imgs[(index + 1) % imgCount], true);
         popArtVector.add(popArt);
         
         showIndexes[x + y * (windowWidth / popArtWidth)] = 0;
-        showCounts[x + y * (windowWidth / popArtWidth)] = 100;
+        showCounts[x + y * (windowWidth / popArtWidth)] = int(random(50, 100)); // 100;
         showDelayIndexes[x + y * (windowWidth / popArtWidth)] = 0;
-        showDelays[x + y * (windowWidth / popArtWidth)] = 5 * (x + y * (windowWidth / popArtWidth));
+        showDelays[x + y * (windowWidth / popArtWidth)] = 0; //5 * (x + y * (windowWidth / popArtWidth));
       }
     }
   }
@@ -59,12 +70,15 @@ void draw() {
       showIndexes[i]++;
     } else {
       
-      isRunnings[i] = popArt.transition(5,func);
+      isRunnings[i] = popArt.transition(50,func);
       if (isRunnings[i]) {
       } else {
 //        showDelayIndexes[i] = 0;
         showIndexes[i] = 0;
-//        showCounts[i] = int(random(100, 200));
+        showCounts[i] = int(random(100, 200));
+        
+        int index = round(random(0, imgCount-1));
+        popArt.setImage(imgs[index], false);
       }
     }
   
@@ -73,4 +87,16 @@ void draw() {
     
     i++;
   }
+  
+  if (isSave) {
+    if (saveIndex < saveCount / 2 + 1) {
+      saveFrame("frames/" +  String.valueOf(10000 + saveIndex).substring(1));
+      saveFrame("frames/" +  String.valueOf(10000 + saveCount - saveIndex).substring(1));
+      saveIndex++;
+    }
+  }
+}
+
+void mouseClicked() {
+  isSave = true;
 }
