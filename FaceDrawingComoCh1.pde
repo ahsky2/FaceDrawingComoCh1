@@ -1,6 +1,7 @@
 import java.util.*;
 
-int imgCount = 12;
+int imgCount = 30;
+int imgIndex = 31;
 PImage imgs[] = new PImage[imgCount];
 
 NonLinearFunc func;
@@ -23,13 +24,20 @@ int saveIndex = 0;
 int saveCount = 1000;
 
 color[] vividColors = 
-  {#FB6086, #F7ECF0, #73D6E5, #FB0006, #FFFFFF, 
-   #F3FF0B, #FB007A, #F8FFE3, #F5CBEA, #FEFAEE,
-   #94C526, #CD781A, #46D3E5, #2AAC1C, #F29C96,
-   #E6C645, #FA0462, #1440E0, #DEB18B, #41B7C7};
+//  {#FEFD0B, #FA0307, #2F9A1C, #CC00FF, #1086FF,
+//   #FA003F, #2CE1B8, #118CFF, #DE00FC, #FEFD0B};
+     {#2CDAA7, #1473FD};
+
+PImage[] vividColorImgs = new PImage[vividColors.length];
    
 PGraphics[] fadeOutMasks;
 PGraphics[] fadeInMasks;
+
+boolean isColorStart = true; // 0 : color to PopArt, 1 : PopArt to PopArt
+boolean isNextLast = false;
+boolean isLast = false;
+int transitionCount = 3;
+int transitionIndex = 0;
 
 void setup() {
   size(720, 480, P2D);
@@ -38,7 +46,7 @@ void setup() {
   
   for(int i = 0; i < imgCount; i++) {
 //    imgs[i] = loadImage("img" + (i + 1) + ".jpg");
-    imgs[i] = loadImage("PFD_100x100_" + (i + 101 + "").substring(1) + ".jpg");
+    imgs[i] = loadImage("PFD_100x100_" + (i + imgIndex + 100 + "").substring(1) + ".jpg");
     if (imgs[i] == null)  {
       exit();
     }
@@ -54,8 +62,18 @@ void setup() {
     fadeOutMasks[i] = createMask(i, popArtWidth, popArtHeight, true);
     fadeInMasks[i] = createMask(i, popArtWidth, popArtHeight, false);
   }
+  
+  for(int i = 0; i < vividColorImgs.length; i++) {
+    vividColorImgs[i] = createImage(popArtWidth, popArtHeight, RGB);
+    vividColorImgs[i].loadPixels();
+    for (int p = 0; p < vividColorImgs[i].pixels.length; p++) {
+      vividColorImgs[i].pixels[p] = vividColors[i];
+    }
+    vividColorImgs[i].updatePixels();
+  }
 
-  vividColorIndex = int(random(vividColors.length));
+//  vividColorIndex = int(random(vividColors.length));
+  vividColorIndex = 0;
   
   popArtVector = new Vector();
   for(int y = 0; y < (windowHeight / popArtHeight); y++) {
@@ -66,9 +84,14 @@ void setup() {
 
         int index = round(random(0, imgCount-1));
 //        println(index);
-        popArt.setImage(imgs[index], true);
-        popArt.setImage(imgs[(index + 1) % imgCount], true);
-        popArt.setColor(vividColors[vividColorIndex]);
+
+        if(isColorStart) {
+          popArt.setImage(vividColorImgs[vividColorIndex], true);
+          popArt.setImage(imgs[index], true);
+        } else {
+          popArt.setImage(imgs[index], true);
+          popArt.setImage(imgs[(index + 1) % imgCount], false);
+        }
         popArt.setMasks(fadeOutMasks, fadeInMasks);
         popArtVector.add(popArt);
         
@@ -94,22 +117,41 @@ void draw() {
     } else if (showIndexes[i] < showCounts[i]) {
       showIndexes[i]++;
     } else {
-      
+
 //      isRunnings[i] = popArt.transition(100,func);
       isRunnings[i] = popArt.transition();
       if (isRunnings[i]) {
       } else {
-        if (i == 0) {
-          vividColorIndex = int(random(vividColors.length));
-        }
+//        println(transitionIndex);
 //        showDelayIndexes[i] = 0;
         showIndexes[i] = 0;
         showCounts[i] = 10 * ((windowHeight / popArtHeight) * (windowWidth / popArtWidth)); //int(random(100, 200));
         
-        int index = round(random(0, imgCount-1));
+        if (i == 0) {
+//          vividColorIndex = int(random(vividColors.length));
+          vividColorIndex = 1;
+          
+          transitionIndex = transitionIndex + 1;
+          if(transitionIndex == transitionCount) {
+            isNextLast = true;
+          }
+        }
         
-        popArt.setColor(vividColors[vividColorIndex]);
-        popArt.setImage(imgs[index], false);
+        if(!isNextLast) {
+          int index = round(random(0, imgCount-1));
+          popArt.setImage(imgs[index], false);
+        } else {
+          popArt.setImage(vividColorImgs[vividColorIndex], false);
+        }
+        
+        if (i == popArtVector.size() - 1) {
+          if(isLast) {
+            noLoop();
+          }
+          if(isNextLast) {
+            isLast = true;
+          }
+        }
       }
     }
   
@@ -120,11 +162,11 @@ void draw() {
   }
   
   if (isSave) {
-    if (saveIndex < saveCount / 2 + 1) {
+//    if (saveIndex < saveCount / 2 + 1) {
       saveFrame("frames/" +  String.valueOf(10000 + saveIndex).substring(1));
-      saveFrame("frames/" +  String.valueOf(10000 + saveCount - saveIndex).substring(1));
+//      saveFrame("frames/" +  String.valueOf(10000 + saveCount - saveIndex).substring(1));
       saveIndex++;
-    }
+//    }
   }
 }
 

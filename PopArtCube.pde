@@ -78,77 +78,31 @@ class PopArtCube {
 //      endShape();
     } 
     else {
-      if (!isNextImg) {
-        
-//      fadeOutMask = createGraphics(int(width), int(height));
-//      fadeOutMask.beginDraw();
-//      for(int h = 0; h < height; h++) {
-//        fadeOutMask.stroke(map(h, 0, height, map(transValue, 0, height, 255, 0), 255));
-//        fadeOutMask.line(0, h, width, h);
-//      }
-//      fadeOutMask.endDraw();
-//      
-        imgs[imgIndex].mask(fadeOutMasks[transValue]);
+      imgs[imgIndex].mask(fadeOutMasks[transValue]);
+    
+      beginShape();
+      texture(imgs[imgIndex]);
+      vertex(x, y, 0, 0);
+      vertex(x + width, y, 1, 0);
+      vertex(x + width, y + height - transValue, 1, 1);
+      vertex(x, y + height - transValue, 0, 1);
+      endShape();
       
-        beginShape();
-        texture(imgs[imgIndex]);
-        vertex(x, y, 0, 0);
-        vertex(x + width, y, 1, 0);
-        vertex(x + width, y + height - transValue, 1, 1);
-        vertex(x, y + height - transValue, 0, 1);
-        endShape();
-      
-//      fadeInMask = createGraphics(int(width), int(height));
-//      fadeInMask.beginDraw();
-//      for(int h = 0; h < height; h++) {
-//        fadeInMask.stroke(map(h, 0, height, 255, map(transValue, 0, 80, 0, 255)));
-//        fadeInMask.line(0, h, width, h);
-//      }
-//      fadeInMask.endDraw();
-//      
-        colorImg.mask(fadeInMasks[transValue]);
-
-        beginShape();
-        texture(colorImg);
-        vertex(x, y + height - transValue, 0, 0);
-        vertex(x + width, y + height - transValue, 1, 0);
-        vertex(x + width, y + height, 1, 1);
-        vertex(x, y + height, 0, 1);
-        endShape();
+      imgs[(imgIndex + 1) % imgCount].mask(fadeInMasks[transValue]);
         
-        transValue = transValue + 1;
-        if (transValue == height) {
-          isNextImg = true;
-          transValue = 0;
-        }
-      } else {
-        colorImg.mask(fadeOutMasks[transValue]);
-        
-        beginShape();
-        texture(colorImg);
-        vertex(x, y, 0, 0);
-        vertex(x + width, y, 1, 0);
-        vertex(x + width, y + height - transValue, 1, 1);
-        vertex(x, y + height - transValue, 0, 1);
-        endShape();
-        
-        imgs[(imgIndex + 1) % imgCount].mask(fadeInMasks[transValue]);
-          
-        beginShape();
-        texture(imgs[(imgIndex + 1) % imgCount]);
-        vertex(x, y + height - transValue, 0, 0);
-        vertex(x + width, y + height - transValue, 1, 0);
-        vertex(x + width, y + height, 1, 1);
-        vertex(x, y + height, 0, 1);
-        endShape();
-      
-        transValue = transValue + 1;
-        if (transValue == height) {
-          isNextImg = false;
-          status = 0; // change status to show
-          imgIndex = (imgIndex + 1) % imgCount; // change front image index
-          transValue = 0;
-        }
+      beginShape();
+      texture(imgs[(imgIndex + 1) % imgCount]);
+      vertex(x, y + height - transValue, 0, 0);
+      vertex(x + width, y + height - transValue, 1, 0);
+      vertex(x + width, y + height, 1, 1);
+      vertex(x, y + height, 0, 1);
+      endShape();
+    
+      transValue = transValue + 1;
+      if (transValue == height) {
+        status = 0; // change status to show
+        imgIndex = (imgIndex + 1) % imgCount; // change front image index
+        transValue = 0;
       }
     }
   }
