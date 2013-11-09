@@ -40,7 +40,7 @@ void setup() {
     if (imgs[i] == null)  {
       exit();
     }
-    imgs[i].resize(80, 80);
+    imgs[i].resize(popArtWidth, popArtHeight);
   }
 
   fadeOutMasks = new PGraphics[maskCount];
@@ -130,8 +130,8 @@ void draw() {
   }
   
   if (isSave) {
-      saveFrame("frames/" +  String.valueOf(10000 + saveIndex).substring(1));
-      saveIndex++;
+    saveFrame("frames/" +  String.valueOf(10000 + saveIndex).substring(1));
+    saveIndex++;
   }
 }
 
