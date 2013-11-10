@@ -139,10 +139,10 @@ void keyPressed() {
   if (key == 's' || key == 'S') {
     if (isSave) {
       isSave = false;
-      println("Save Start");
+      println("Save End");
     } else {
       isSave = true;
-      println("Save End");
+      println("Save Start");
     }
   }
 }
